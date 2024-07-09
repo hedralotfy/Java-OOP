@@ -1,5 +1,6 @@
 package com.innovator.learnit.OOP.ClassesAndObjects;
 
+//This is called POJO class, as it's simple class.
 import java.math.BigDecimal;
 
 public class Product {

@@ -39,8 +39,8 @@ public class Cart {
 		System.out.println("Cart.class is uploaded into JVM");
 	}
 
-	// Every time a cart object will be created, a car counter will be incremented.
-	// In case cards will be created without user id, I know I will need to assign
+	// Every time a cart object will be created, a cart counter will be incremented.
+	// In case carts will be created without user id, I know I will need to assign
 	// this cart
 	// to some user.
 
@@ -106,29 +106,51 @@ public class Cart {
 	}
 
 	private BigDecimal calculateTotalNetPrice() {
-		this.totalNetPrice = BigDecimal.valueOf(Arrays.stream(this.products)
-				.mapToDouble(product -> product != null ? product.getPrice().doubleValue() : 0)
-				.sum()).setScale(MONEY_SCALE, RoundingMode.HALF_UP);
+		// 19-6-2024:
+		// This part of the code returns the Big decimal created values in the stream of
+		// products array that are then transformed it into a stream of double values
+		// representing the double value in the product array in case it wasn't null,
+		// else
+		// it will be 0.
+		// Then this stream is summed to produce a total net price, which will be scaled
+		// using the HALF_UP mode in RoundingMode class.
+
+		// .stream() -> Returns a sequential Stream with the specified array as its
+		// source.
+		// Stream -> A sequence of elements supporting sequential and parallel aggregate
+		// operations.
+
+		// the lambda expression is used within the mapToDouble() method.
+		// The parameter product represents each element in the products array.
+		// The -> operator is essential for defining concise, inline functions (lambdas)
+		// within stream operations.
+		// What's before the -> is the parameter and what's after the -> operator is the
+		// expression body.  JavaTPoint
+		this.totalNetPrice = BigDecimal
+				.valueOf(Arrays.stream(this.products)
+						.mapToDouble(product -> product != null ? product.getPrice().doubleValue() : 0).sum())
+				.setScale(MONEY_SCALE, RoundingMode.HALF_UP);
 		return this.totalNetPrice;
 	}
-	
+
 	private BigDecimal calculateTotalGrossPrice() {
 		if (this.totalNetPrice.doubleValue() < 0) {
 			calculateTotalNetPrice();
 		}
-		BigDecimal orderDiscount = this.totalNetPrice
-				.multiply(BigDecimal.valueOf(discount.getDiscountRate()))
+		BigDecimal orderDiscount = this.totalNetPrice.multiply(BigDecimal.valueOf(discount.getDiscountRate()))
 				.setScale(MONEY_SCALE, RoundingMode.HALF_UP);
-		this.totalTax = this.totalNetPrice.multiply(BigDecimal.valueOf(tax.getTaxRate()))
-				.setScale(MONEY_SCALE, RoundingMode.HALF_UP);
+		this.totalTax = this.totalNetPrice.multiply(BigDecimal.valueOf(tax.getTaxRate())).setScale(MONEY_SCALE,
+				RoundingMode.HALF_UP);
 		this.totalGrossPrice = this.totalNetPrice.add(this.totalTax).subtract(orderDiscount);
 		return this.totalGrossPrice;
 	}
 
-	//Then we have getters and setters, as the properties of the object are private,
-	// and we want to have full control of how user interacts with the object and how
+	// Then we have getters and setters, as the properties of the object are
+	// private,
+	// and we want to have full control of how user interacts with the object and
+	// how
 	// they can change state of object.
-	//Getters usually are used to read properties of objects.
+	// Getters usually are used to read properties of objects.
 	public int getId() {
 		return id;
 	}
@@ -151,16 +173,16 @@ public class Cart {
 //	public Product[] getProducts() {
 //		return products;
 //	}
-	
-	//19-6-2024:
-	//This getter returns a copy of products array.
-	//Like this, if in some other places reference to
+
+	// 19-6-2024:
+	// This getter returns a copy of products array.
+	// Like this, if in some other places reference to
 	// the array will be obtained, they will get a
 	// reference to the copy of the array and won't
 	// be able to change the state of the original products
 	// array.
-	
-	//This is so important because we will calculate
+
+	// This is so important because we will calculate
 	// total net and total gross price.
 	public Product[] getProducts() {
 		return Arrays.copyOf(products, products.length);
@@ -173,7 +195,7 @@ public class Cart {
 	public static int getCartCounter() {
 		return cartCounter;
 	}
-	
+
 	public BigDecimal getTotalNetPrice() {
 		return totalNetPrice;
 	}
@@ -185,7 +207,7 @@ public class Cart {
 	public BigDecimal getTotalTax() {
 		return totalTax;
 	}
-	
+
 	public Discount getDiscount() {
 		return discount;
 	}
@@ -200,19 +222,18 @@ public class Cart {
 
 	@Override
 	public String toString() {
-		return "Cart [id=" + id + ", userId=" + userId + ", totalNetPrice="
-				+ totalNetPrice + ", totalGrossPrice=" + totalGrossPrice + ", totalTax="
-				+ totalTax + ", products=" + Arrays.toString(products)
+		return "Cart [id=" + id + ", userId=" + userId + ", totalNetPrice=" + totalNetPrice + ", totalGrossPrice="
+				+ totalGrossPrice + ", totalTax=" + totalTax + ", products=" + Arrays.toString(products)
 				+ ", indexOfLastProductAdded=" + indexToAddNewProduct + "]";
 	}
-	
-	//Classes can have nested classes, static or non-static classes.
-	//Static classes usually called just nested static classes, like Tax.
-	//Non-static classes are called inner classes, like Discount.
+
+	// Classes can have nested classes, static or non-static classes.
+	// Static classes usually called just nested static classes, like Tax.
+	// Non-static classes are called inner classes, like Discount.
 	public class Discount {
 		private String discountName;
 		private double discountRate;
-		
+
 		public Discount(String discountName, double discountRate) {
 			this.discountName = discountName;
 			this.discountRate = discountRate;
@@ -233,31 +254,38 @@ public class Cart {
 		public void setDiscountRate(double discountRate) {
 			this.discountRate = discountRate;
 		}
+
+		@Override
+		public String toString() {
+			return "Discount [discountName= " + discountName + ", discountRate=" + discountRate + "]";
+		}
 	}
-	
+
 	public static class Tax {
 		private String taxType;
 		private double taxRate;
-		
+
 		public Tax(String taxType, double taxRate) {
 			this.taxType = taxType;
 			this.taxRate = taxRate;
 		}
-		
+
 		public String getTaxType() {
 			return taxType;
 		}
+
 		public void setTaxType(String taxType) {
 			this.taxType = taxType;
 		}
+
 		public double getTaxRate() {
 			return taxRate;
 		}
+
 		public void setTaxRate(double taxRate) {
 			this.taxRate = taxRate;
 		}
-		
-		
+
 	}
 
 }

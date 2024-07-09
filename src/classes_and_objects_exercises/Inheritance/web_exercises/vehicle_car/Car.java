@@ -1,0 +1,10 @@
+package classes_and_objects_exercises.Inheritance.web_exercises.vehicle_car;
+
+public class Car extends Vehicle {
+	
+	@Override
+	public void drive() {
+		System.out.println("Repairing the car...");
+	}
+
+}
